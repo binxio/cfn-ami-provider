@@ -1,0 +1,15 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Demo Custom AMI Provider
+Resources:
+  AMI:
+    Type: Custom::AMI
+    Properties:
+      Filters:
+        name: 'amzn-ami-2017.09.k-amazon-ecs-optimized'
+      ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:binxio-cfn-ami-provider'
+
+Outputs:
+  AmiId:
+    Value: !Ref AMI
+    Description: The AMI id of amzn-ami-2017.09.k-amazon-ecs-optimized in this region.
