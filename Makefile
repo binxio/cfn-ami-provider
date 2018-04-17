@@ -1,8 +1,9 @@
 include Makefile.mk
 
-NAME=cfn-secret-provider
+NAME=cfn-ami-provider
+S3_BUCKET_PREFIX=binxio-public
 AWS_REGION=eu-central-1
-ALL_REGIONS=$(shell printf "import boto3\nprint '\\\n'.join(map(lambda r: r['RegionName'], boto3.client('ec2').describe_regions()['Regions']))\n" | python | grep -v '^$(AWS_REGION)$$')
+ALL_REGIONS=$(shell printf "import boto3\nprint('\\\n'.join(map(lambda r: r['RegionName'], boto3.client('ec2').describe_regions()['Regions'])))\n" | python | grep -v '^$(AWS_REGION)$$')
 
 help:
 	@echo 'make                 - builds a zip file to target/.'
@@ -87,14 +88,17 @@ test: venv
 autopep:
 	autopep8 --experimental --in-place --max-line-length 132 src/*.py tests/*.py
 
+deploy-provider: COMMAND=$(shell if aws cloudformation get-template-summary --stack-name $(NAME) >/dev/null 2>&1; then \
+			echo update; else echo create; fi)
 deploy-provider: 
-	COMMAND=$(shell if aws cloudformation get-template-summary --stack-name $(NAME) >/dev/null 2>&1; then \
-			echo update; else echo create; fi) ; \
-	aws cloudformation $$COMMAND-stack \
-		--capabilities CAPABILITY_IAM \
-		--stack-name $(NAME) \
-		--template-body file://cloudformation/cfn-resource-provider.yaml ; \
-	aws cloudformation wait stack-$$COMMAND-complete  --stack-name $(NAME) 
+	aws cloudformation $(COMMAND)-stack \
+                --capabilities CAPABILITY_IAM \
+                --stack-name $(NAME) \
+                --template-body file://cloudformation/cfn-resource-provider.yaml \
+                --parameters \
+                        ParameterKey=S3BucketPrefix,ParameterValue=$(S3_BUCKET_PREFIX) \
+                        ParameterKey=CFNCustomProviderZipFileName,ParameterValue=lambdas/$(NAME)-$(VERSION).zip
+	aws cloudformation wait stack-$(COMMAND)-complete  --stack-name $(NAME)
 
 delete-provider:
 	aws cloudformation delete-stack --stack-name $(NAME)
