@@ -49,7 +49,7 @@ Resources:
       Code:
         S3Bucket: !Sub '${S3BucketPrefix}-${AWS::Region}'
         S3Key: !Ref 'CFNCustomProviderZipFileName'
-      FunctionName: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:binxio-cfn-ami-provider'
+      FunctionName: binxio-cfn-ami-provider
       Handler: cfn_ami_provider.handler
       MemorySize: 128
       Timeout: 30
