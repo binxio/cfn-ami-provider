@@ -66,6 +66,7 @@ class AMIProvider(ResourceProvider):
             self.physical_resource_id = response['Images'][0]['ImageId']
         else:
             self.fail('expected a single AMI, found {}'.format(len(response['Images'])))
+            self.physical_resource_id = 'not-a-specific-ami'
 
     def create(self):
         self.get_image_id()
