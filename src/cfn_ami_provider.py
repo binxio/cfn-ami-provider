@@ -1,7 +1,9 @@
+import os
 import logging
 import boto3
 from cfn_resource_provider import ResourceProvider
 
+logging.basicConfig(level=os.getenv('LOG_LEVEL', 'INFO'))
 log = logging.getLogger()
 
 request_schema = {
