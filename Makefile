@@ -62,14 +62,13 @@ do-push: deploy
 
 do-build: local-build
 
-local-build: src/*.py venv requirements.txt
+local-build: src/*.py requirements.txt
 	mkdir -p target/content 
-	docker run -v $$PWD/target/content:/venv python:3.6 pip install --quiet -t /venv $$(<requirements.txt)
-	cp -r src/* target/content
-	find target/content -type d | xargs  chmod ugo+rx 
-	find target/content -type f | xargs  chmod ugo+r 
-	cd target/content && zip --quiet -9r ../../target/$(NAME)-$(VERSION).zip  .
-	chmod ugo+r target/$(NAME)-$(VERSION).zip
+	docker build --build-arg ZIPFILE=$(NAME)-$(VERSION).zip -t $(NAME)-lambda:$(VERSION) -f Dockerfile.lambda . && \
+		ID=$$(docker create $(NAME)-lambda:$(VERSION) /bin/true) && \
+		docker export $$ID | (cd target && tar -xvf - $(NAME)-$(VERSION).zip) && \
+		docker rm -f $$ID && \
+		chmod ugo+r target/$(NAME)-$(VERSION).zip
 
 venv: requirements.txt
 	virtualenv -p python3 venv  && \
