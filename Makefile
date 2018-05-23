@@ -15,7 +15,7 @@ help:
 	@echo 'make demo            - deploys the provider and the demo cloudformation stack.'
 	@echo 'make delete-demo     - deletes the demo cloudformation stack.'
 
-deploy:
+deploy: target/$(NAME)-$(VERSION).zip
 	aws s3 --region $(AWS_REGION) \
 		cp target/$(NAME)-$(VERSION).zip \
 		s3://$(S3_BUCKET_PREFIX)-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip 
@@ -60,9 +60,9 @@ undeploy:
 
 do-push: deploy
 
-do-build: local-build
+do-build: target/$(NAME)-$(VERSION).zip
 
-local-build: src/*.py requirements.txt
+target/$(NAME)-$(VERSION).zip: src/*.py requirements.txt
 	mkdir -p target/content 
 	docker build --build-arg ZIPFILE=$(NAME)-$(VERSION).zip -t $(NAME)-lambda:$(VERSION) -f Dockerfile.lambda . && \
 		ID=$$(docker create $(NAME)-lambda:$(VERSION) /bin/true) && \

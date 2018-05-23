@@ -2,5 +2,4 @@
 build:
   stage: build
   script:
-    - make S3_BUCKET_PREFIX=${LAMBDA_BUCKET_PREFIX:-binxio-public} AWS_REGION=${LAMBDA_BUCKET_REGION:-eu-central-1}
-
+    - make S3_BUCKET_PREFIX=${LAMBDA_BUCKET_PREFIX:-binxio-public} AWS_REGION=${LAMBDA_BUCKET_REGION:-eu-central-1} deploy
