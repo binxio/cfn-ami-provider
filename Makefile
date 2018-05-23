@@ -1,7 +1,7 @@
 include Makefile.mk
 
 NAME=cfn-ami-provider
-S3_BUCKET_PREFIX=$(S3_BUCKET_PREFIX)
+S3_BUCKET_PREFIX=binxio-public
 AWS_REGION=eu-central-1
 ALL_REGIONS=$(shell printf "import boto3\nprint('\\\n'.join(map(lambda r: r['RegionName'], boto3.client('ec2').describe_regions()['Regions'])))\n" | python | grep -v '^$(AWS_REGION)$$')
 
