@@ -1,7 +1,7 @@
 include Makefile.mk
 
 NAME=cfn-ami-provider
-S3_BUCKET_PREFIX=binxio-public
+S3_BUCKET_PREFIX=$(S3_BUCKET_PREFIX)
 AWS_REGION=eu-central-1
 ALL_REGIONS=$(shell printf "import boto3\nprint('\\\n'.join(map(lambda r: r['RegionName'], boto3.client('ec2').describe_regions()['Regions'])))\n" | python | grep -v '^$(AWS_REGION)$$')
 
@@ -18,41 +18,43 @@ help:
 deploy:
 	aws s3 --region $(AWS_REGION) \
 		cp target/$(NAME)-$(VERSION).zip \
-		s3://binxio-public-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip 
+		s3://$(S3_BUCKET_PREFIX)-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip 
 	aws s3 --region $(AWS_REGION) cp \
-		s3://binxio-public-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip \
-		s3://binxio-public-$(AWS_REGION)/lambdas/$(NAME)-latest.zip 
+		s3://$(S3_BUCKET_PREFIX)-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip \
+		s3://$(S3_BUCKET_PREFIX)-$(AWS_REGION)/lambdas/$(NAME)-latest.zip 
 	aws s3api --region $(AWS_REGION) \
-		put-object-acl --bucket binxio-public-$(AWS_REGION) \
+		put-object-acl --bucket $(S3_BUCKET_PREFIX)-$(AWS_REGION) \
 		--acl public-read --key lambdas/$(NAME)-$(VERSION).zip 
 	aws s3api --region $(AWS_REGION) \
-		put-object-acl --bucket binxio-public-$(AWS_REGION) \
+		put-object-acl --bucket $(S3_BUCKET_PREFIX)-$(AWS_REGION) \
 		--acl public-read --key lambdas/$(NAME)-latest.zip 
+
+deploy-all-regions: deploy
 	@for REGION in $(ALL_REGIONS); do \
 		echo "copying to region $$REGION.." ; \
 		aws s3 --region $(AWS_REGION) \
 			cp  \
-			s3://binxio-public-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip \
-			s3://binxio-public-$$REGION/lambdas/$(NAME)-$(VERSION).zip; \
+			s3://$(S3_BUCKET_PREFIX)-$(AWS_REGION)/lambdas/$(NAME)-$(VERSION).zip \
+			s3://$(S3_BUCKET_PREFIX)-$$REGION/lambdas/$(NAME)-$(VERSION).zip; \
 		aws s3 --region $$REGION \
 			cp  \
-			s3://binxio-public-$$REGION/lambdas/$(NAME)-$(VERSION).zip \
-			s3://binxio-public-$$REGION/lambdas/$(NAME)-latest.zip; \
+			s3://$(S3_BUCKET_PREFIX)-$$REGION/lambdas/$(NAME)-$(VERSION).zip \
+			s3://$(S3_BUCKET_PREFIX)-$$REGION/lambdas/$(NAME)-latest.zip; \
 		aws s3api --region $$REGION \
-			put-object-acl --bucket binxio-public-$$REGION \
+			put-object-acl --bucket $(S3_BUCKET_PREFIX)-$$REGION \
 			--acl public-read --key lambdas/$(NAME)-$(VERSION).zip; \
 		aws s3api --region $$REGION \
-			put-object-acl --bucket binxio-public-$$REGION \
+			put-object-acl --bucket $(S3_BUCKET_PREFIX)-$$REGION \
 			--acl public-read --key lambdas/$(NAME)-latest.zip; \
 	done
 		
 
 undeploy:
 	@for REGION in $(ALL_REGIONS); do \
-                echo "copying to region $$REGION.." ; \
+                echo "removing lamdba from region $$REGION.." ; \
                 aws s3 --region $(AWS_REGION) \
                         rm  \
-                        s3://binxio-public-$$REGION/lambdas/$(NAME)-$(VERSION).zip; \
+                        s3://$(S3_BUCKET_PREFIX)-$$REGION/lambdas/$(NAME)-$(VERSION).zip; \
         done
 
 
