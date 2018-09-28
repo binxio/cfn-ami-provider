@@ -35,7 +35,7 @@ Every now and then a new version of your AMI will be released. You can keep the 
 the [aws-cfn-update](https://github.com/binxio/aws-cfn-update) utility:
 
 ```
-aws-cfn-update latest-ami --ami-name-pattern 'amzn-ami-2017.09.a-amazon-ecs-optimized' .
+aws-cfn-update latest-ami --ami-name-pattern 'amzn-ami-*-amazon-ecs-optimized' .
 ```
 
 
