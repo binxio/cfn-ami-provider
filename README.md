@@ -10,7 +10,7 @@ which will ease the understandibility and maintainability of your CloudFormation
 
 
 ## How do get the AMI id by name?
-It is quite easy: you specify a CloudFormation resource of the [Custom::AMI](docs/Custom%3A%3AMI.md), as follows:
+It is quite easy: you specify a CloudFormation resource of the [Custom::AMI](docs/AMI.md), as follows:
 
 ```yaml
   AMI:

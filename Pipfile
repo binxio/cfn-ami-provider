@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+awscli = "*"
+pytest = "*"
+
+[packages]
+boto3 = "*"
+cfn-resource-provider = ">=0.10.1"
+
+[requires]
+python_version = "3.7"

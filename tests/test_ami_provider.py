@@ -3,16 +3,26 @@ import uuid
 from cfn_ami_provider import handler
 
 
+def test_with_owner_id():
+    request = Request('Create', filters={'name': 'amzn-ami-2017.09.l-amazon-ecs-optimized', 'owner-id': '591542846629'})
+    response = handler(request, {})
+    assert response['Status'] == 'SUCCESS', response['Reason']
+    assert 'PhysicalResourceId' in response
+    assert response['PhysicalResourceId'].startswith('ami-')
+    assert "KmsKeyIds" in response["Data"]
+
 def test_crud():
     request = Request('Create', filters={'name': 'amzn-ami-2017.09.l-amazon-ecs-optimized'})
     response = handler(request, {})
     assert response['Status'] == 'SUCCESS', response['Reason']
     assert 'PhysicalResourceId' in response
+    assert "KmsKeyIds" in response["Data"]
     assert response['PhysicalResourceId'].startswith('ami-')
     physical_resource_id = response['PhysicalResourceId']
     request = Request('Update', filters={'name': 'amzn-ami-2017.09.k-amazon-ecs-optimized'}, physical_resource_id=physical_resource_id)
     response = handler(request, {})
     assert 'PhysicalResourceId' in response
+    assert "KmsKeyIds" in response["Data"]
     assert response['PhysicalResourceId'] != physical_resource_id
     request = Request('Delete', filters={'name': 'amzn-ami-2017.09.l-amazon-ecs-optimized'}, physical_resource_id=physical_resource_id)
     request = Request('Delete', filters={'name': 'amzn-ami-2017.09.k-amazon-ecs-optimized'}, physical_resource_id=response['PhysicalResourceId'])
@@ -22,10 +32,12 @@ def test_with_region():
     response = handler(request, {})
     assert response['Status'] == 'SUCCESS', response['Reason']
     assert response['PhysicalResourceId'].startswith('ami-')
+    assert "KmsKeyIds" in response["Data"]
 
     request = Request('Create', filters={'name': 'amzn-ami-2017.09.l-amazon-ecs-optimized'}, region='eu-west-1')
     response2 = handler(request, {})
     assert response2['Status'] == 'SUCCESS', response['Reason']
+    assert "KmsKeyIds" in response["Data"]
     assert response2['PhysicalResourceId'].startswith('ami-')
     assert response['PhysicalResourceId'] != response2['PhysicalResourceId']
 
@@ -34,6 +46,13 @@ def test_multiple():
     response = handler(request, {})
     assert response['Status'] == 'FAILED', response['Reason']
     assert response['Reason'].startswith('expected a single AMI, found')
+
+def test_encrypted_ami():
+    request = Request('Create', filters={'name': 'amzn2-ami-minimal-hvm-2.0.20191217.0-x86_64-ebs-encrypted'})
+    response = handler(request, {})
+    assert response['Status'] == 'SUCCESS', response['Reason']
+    assert "KmsKeyIds" in response["Data"]
+    assert response["Data"]["KmsKeyIds"]
 
 
 

@@ -55,3 +55,10 @@ Filters:
   name: amzn-ami-2017.09.k-amazon-ecs-optimized
   architecture: x86_64
 ```
+
+## Return values
+With 'Fn::GetAtt' the following values are available:
+
+- `KmsKeyIds` - array of KMS key ARN associated with machine image
+
+
