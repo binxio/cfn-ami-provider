@@ -87,7 +87,7 @@ class AMIProvider(ResourceProvider):
         )
         if snapshot_ids:
             paginator = self.ec2.get_paginator("describe_snapshots")
-            for response in paginator.paginate(SnapshotIds=snapshot_ids):
+            for response in paginator.paginate(SnapshotIds=snapshot_ids, OwnerIds=[image["OwnerId"]]):
                 kms_key_ids.extend(
                     iter(
                         filter(
