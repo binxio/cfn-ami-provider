@@ -78,7 +78,7 @@ aws cloudformation create-stack \
 aws cloudformation wait stack-create-complete  --stack-name cfn-ami-provider 
 ```
 
-This CloudFormation template will use our pre-packaged provider from `s3://binxio-public-${AWS_REGION}/lambdas/cfn-ami-provider-0.1.6.zip`.
+This CloudFormation template will use our pre-packaged provider from `s3://binxio-public-${AWS_REGION}/lambdas/cfn-ami-provider-0.1.7.zip`.
 
 
 ## Demo
