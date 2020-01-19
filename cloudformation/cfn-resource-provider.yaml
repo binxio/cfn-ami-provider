@@ -21,6 +21,7 @@ Resources:
           - Effect: Allow
             Action:
               - 'ec2:DescribeImages'
+              - 'ec2:DescribeSnapshots'
             Resource: '*'
           - Effect: Allow
             Action:
