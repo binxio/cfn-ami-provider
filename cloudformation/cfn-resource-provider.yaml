@@ -7,7 +7,7 @@ Parameters:
     Default: 'binxio-public'
   CFNCustomProviderZipFileName:
     Type: String
-    Default: lambdas/cfn-ami-provider-0.1.5.zip
+    Default: lambdas/cfn-ami-provider-0.1.6.zip
 Resources:
   LambdaPolicy:
     Type: AWS::IAM::Policy
