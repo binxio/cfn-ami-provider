@@ -5,6 +5,8 @@ When you want to start a virtual machine using CloudFormation, you always have t
 an Amazon Machine Image (AMI) id like `ami-1fefd19`.  hese ids are difficult to find, give you 
 no idea on what kind of image its and are different per region. 
 
+If the AMI is encrypted, you may need the used KMS keys for encryption to create grants in your account.
+
 With this custom CloudFormation Provider you get rid of the magic strings and specify AMIs by name, 
 which will ease the understandibility and maintainability of your CloudFormation templates.
 
@@ -36,6 +38,31 @@ the [aws-cfn-update](https://github.com/binxio/aws-cfn-update) utility:
 
 ```
 aws-cfn-update latest-ami --ami-name-pattern 'amzn-ami-2017.09.a-amazon-ecs-optimized' .
+```
+
+
+## How do get the KMS key ids for your AMI?
+You can obtain all of the KMS keys used by specify the property `ExpectedNumberOfKmsKeys`:
+
+```yaml
+  AMI:
+    Type: Custom::AMI
+    Properties:
+      Filters:
+        name: 'amzn-ami-2017.09.a-amazon-ecs-optimized'
+      ExpectedNumberOfKmsKeys: 1
+      ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:binxio-cfn-ami-provider'
+```
+All the KMS key id are returned by the attribute `KmsKeyIds`. If the number is 1, the id will be available via 
+the attribute `KmsKeyId` too.
+      
+```
+Outputs:
+   KMSKeyId:
+     Value: !Select [ 0, !Ref AMI.KmsKeyIds ]
+
+   KMSKeyIdShortName:
+     Value: !Ref AMI.KmsKeyId
 ```
 
 

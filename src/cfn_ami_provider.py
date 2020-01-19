@@ -1,6 +1,7 @@
 import os
 import logging
 import boto3
+from typing import Optional
 from cfn_resource_provider import ResourceProvider
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
@@ -18,6 +19,11 @@ request_schema = {
             "type": "array",
             "minItems": 1,
             "items": {"type": "string"},
+        },
+        "ExpectedNumberOfKmsKeys": {
+            "type": "string",
+            "pattern": "[0-9]{1,}",
+            "description": "set the attribute KmsKeyIds of the encryption keys used for this image",
         },
     },
 }
@@ -48,20 +54,27 @@ class AMIProvider(ResourceProvider):
         return result
 
     def get_image_id(self):
-        request = self.create_describe_image_request()
-        response = self.ec2.describe_images(**request)
+        response = self.ec2.describe_images(**self.create_describe_image_request())
         if len(response["Images"]) == 1:
             image = response["Images"][0]
             if image.get("State") == "available":
                 self.physical_resource_id = image["ImageId"]
-                self.set_attribute("KmsKeyIds", self.get_snapshot_kms_key_ids(image))
+                if self.expected_number_of_kms_keys is not None:
+                    self.set_kms_key_id_attributes(image)
             else:
-                self.fail(f"image {self.physical_resource_id} is not available (state = {image['State']}")
+                self.fail(
+                    f"image {self.physical_resource_id} is not available (state = {image['State']}"
+                )
         else:
             self.fail("expected a single AMI, found {}".format(len(response["Images"])))
             self.physical_resource_id = "not-a-specific-ami"
 
-    def get_snapshot_kms_key_ids(self, image: dict):
+    @property
+    def expected_number_of_kms_keys(self) -> Optional[int]:
+        result = self.get("ExpectedNumberOfKmsKeys")
+        return int(result) if result else None
+
+    def set_kms_key_id_attributes(self, image: dict):
         kms_key_ids = []
         snapshot_ids = list(
             map(
@@ -78,11 +91,20 @@ class AMIProvider(ResourceProvider):
                 kms_key_ids.extend(
                     iter(
                         filter(
-                            None, map(lambda s: s.get("KmsKeyId"), response["Snapshots"])
+                            None,
+                            map(lambda s: s.get("KmsKeyId"), response["Snapshots"]),
                         )
                     )
                 )
-        return kms_key_ids
+
+        self.set_attribute("KmsKeyIds", kms_key_ids)
+        if len(kms_key_ids) == 1:
+            self.set_attribute("KmsKeyId", kms_key_ids[0])
+
+        if self.expected_number_of_kms_keys != len(kms_key_ids):
+            self.fail(
+                f"expected {self.expected_number_of_kms_keys} kms key ids, found {len(kms_key_ids)}"
+            )
 
     def create(self):
         self.get_image_id()
