@@ -55,6 +55,9 @@ You can obtain all of the KMS keys used by specify the property `ExpectedNumberO
 ```
 All the KMS key id are returned by the attribute `KmsKeyIds`. If the number is 1, the id will be available via 
 the attribute `KmsKeyId` too.
+
+When the image originates from a differnt AWS account, the snapshots of the EBS volumes for the AMI need to be made accessible too. Otherwise 
+you may run into a `snapshot not found` error.
       
 ```
 Outputs:
