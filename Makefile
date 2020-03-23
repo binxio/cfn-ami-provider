@@ -78,17 +78,22 @@ test: venv
 autopep:
 	autopep8 --experimental --in-place --max-line-length 132 src/*.py tests/*.py
 
-deploy-provider: COMMAND=$(shell if aws cloudformation get-template-summary --stack-name $(NAME) >/dev/null 2>&1; then \
-			echo update; else echo create; fi)
+deploy-pipeline: 
+	aws cloudformation deploy \
+                --capabilities CAPABILITY_IAM \
+                --stack-name $(NAME)-pipeline \
+                --template-file ./cloudformation/cicd-pipeline.yaml \
+                --parameter-overrides \
+                        S3BucketPrefix=$(S3_BUCKET_PREFIX)
+
 deploy-provider: 
-	aws cloudformation $(COMMAND)-stack \
+	aws cloudformation deploy\
                 --capabilities CAPABILITY_IAM \
                 --stack-name $(NAME) \
-                --template-body file://cloudformation/cfn-resource-provider.yaml \
-                --parameters \
-                        ParameterKey=S3BucketPrefix,ParameterValue=$(S3_BUCKET_PREFIX) \
-                        ParameterKey=CFNCustomProviderZipFileName,ParameterValue=lambdas/$(NAME)-$(VERSION).zip
-	aws cloudformation wait stack-$(COMMAND)-complete  --stack-name $(NAME)
+                --template-file ./cloudformation/cfn-resource-provider.yaml \
+                --parameter-overrides \
+                        S3BucketPrefix=$(S3_BUCKET_PREFIX) \
+                        CFNCustomProviderZipFileName=lambdas/$(NAME)-$(VERSION).zip
 
 delete-provider:
 	aws cloudformation delete-stack --stack-name $(NAME)
