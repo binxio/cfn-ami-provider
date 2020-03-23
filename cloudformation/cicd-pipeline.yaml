@@ -27,6 +27,13 @@ Resources:
         Location: https://github.com/binxio/cfn-ami-provider.git
         BuildSpec: .buildspec.yaml
         GitCloneDepth: 0
+      Triggers:
+        FilterGroups:
+         -  - Type: EVENT
+              Pattern: PUSH
+            - Type: HEAD_REF
+              Pattern: "refs/tags/.*"
+        Webhook: true
 
   ProjectRole:
     Type: AWS::IAM::Role
