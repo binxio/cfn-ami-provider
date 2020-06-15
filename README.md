@@ -73,12 +73,10 @@ Outputs:
 To install this custom resource, type:
 
 ```sh
-aws cloudformation create-stack \
-	--capabilities CAPABILITY_IAM \
+aws cloudformation deploy \
+        --capabilities CAPABILITY_IAM \
 	--stack-name cfn-ami-provider \
-	--template-body file://cloudformation/cfn-ami-provider.json 
-
-aws cloudformation wait stack-create-complete  --stack-name cfn-ami-provider 
+	--template ./cloudformation/cfn-ami-provider.yaml
 ```
 
 This CloudFormation template will use our pre-packaged provider from `s3://binxio-public-${AWS_REGION}/lambdas/cfn-ami-provider-0.2.0.zip`.
@@ -88,9 +86,8 @@ This CloudFormation template will use our pre-packaged provider from `s3://binxi
 To install the simple sample of the Custom Resource, type:
 
 ```sh
-aws cloudformation create-stack --stack-name cfn-ami-provider-demo \
-	--template-body file://cloudformation/demo-stack.json
-aws cloudformation wait stack-create-complete  --stack-name cfn-ami-provider-demo
+aws cloudformation deploy --stack-name cfn-ami-provider-demo \
+	--template ./cloudformation/demo-stack.json
 ```
 
 ## Conclusion
