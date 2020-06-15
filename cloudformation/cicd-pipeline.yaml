@@ -67,8 +67,7 @@ Resources:
                   - !Sub 'arn:aws:s3:::${S3BucketPrefix}-*/lambdas/cfn-ami-provider-*'
               - Effect: Allow
                 Action:
-                  - ec2:DescribeInstances
-                  - ec2:DescribeInstanceStatus
+                  - ec2:DescribeRegions
                 Resource: 
                   - '*'
               - Sid: CloudWatchLogsPolicy
