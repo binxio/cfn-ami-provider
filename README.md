@@ -79,7 +79,7 @@ aws cloudformation deploy \
 	--template ./cloudformation/cfn-ami-provider.yaml
 ```
 
-This CloudFormation template will use our pre-packaged provider from `s3://binxio-public-${AWS_REGION}/lambdas/cfn-ami-provider-1.0.0.zip`.
+This CloudFormation template will use our pre-packaged provider from `463637877380.dkr.ecr.eu-central-1.amazonaws.com/xebia/cfn-ami-provider:2.0.0`.
 
 
 ## Demo

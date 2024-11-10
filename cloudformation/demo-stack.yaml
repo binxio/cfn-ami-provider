@@ -6,10 +6,10 @@ Resources:
     Type: Custom::AMI
     Properties:
       Filters:
-        name: 'amzn-ami-2017.09.k-amazon-ecs-optimized'
+        name: 'amzn2-ami-ecs-hvm-2.0.20240818-x86_64-ebs'
       ServiceToken: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:binxio-cfn-ami-provider'
 
 Outputs:
   AmiId:
     Value: !Ref AMI
-    Description: The AMI id of amzn-ami-2017.09.k-amazon-ecs-optimized in this region.
+    Description: The AMI id of amzn2-ami-ecs-hvm-2.0 image in this region.

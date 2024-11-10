@@ -1,13 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation AMI Provider
-Parameters:
-  S3BucketPrefix:
-    Type: String
-    Default: 'binxio-public'
-  CFNCustomProviderZipFileName:
-    Type: String
-    Default: lambdas/cfn-ami-provider-1.0.0.zip
 Resources:
   LambdaPolicy:
     Type: AWS::IAM::Policy
@@ -47,12 +40,12 @@ Resources:
       - LambdaRole
     Properties:
       Description: CloudFormation Custom:AMI implementation
+      PackageType: Image
       Code:
-        S3Bucket: !Sub '${S3BucketPrefix}-${AWS::Region}'
-        S3Key: !Ref 'CFNCustomProviderZipFileName'
+        ImageUri: 463637877380.dkr.ecr.eu-central-1.amazonaws.com/xebia/cfn-ami-provider:2.0.0
+      Architectures:
+        - x86_64
       FunctionName: binxio-cfn-ami-provider
-      Handler: cfn_ami_provider.handler
       MemorySize: 128
       Timeout: 30
       Role: !GetAtt 'LambdaRole.Arn'
-      Runtime: python3.9
