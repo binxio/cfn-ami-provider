@@ -10,9 +10,7 @@ IMAGE=$(REGISTRY_HOST)/$(USERNAME)/$(NAME)
 TAG_WITH_LATEST=never
 
 
-Pipfile.lock: Pipfile requirements.txt test-requirements.txt
-
-requirements.txt test-requirements.txt: Pipfile
+requirements.txt test-requirements.txt: Pipfile.lock
 	pipenv requirements > requirements.txt
 	pipenv requirements --dev-only > test-requirements.txt
 
